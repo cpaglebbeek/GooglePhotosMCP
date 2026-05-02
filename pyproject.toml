@@ -1,0 +1,23 @@
+[project]
+name = "google-photos-mcp"
+version = "0.1.0"
+description = "MCP server for Google Photos — search, browse albums, and view photo metadata from Claude"
+requires-python = ">=3.10"
+dependencies = [
+    "mcp>=1.0.0",
+    "google-api-python-client>=2.100.0",
+    "google-auth-oauthlib>=1.2.0",
+    "google-auth-httplib2>=0.2.0",
+    "python-dotenv>=1.0.0",
+]
+
+[project.scripts]
+google-photos-mcp = "google_photos_mcp.server:main"
+google-photos-auth = "google_photos_mcp.auth:main"
+
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
