@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "extractor": "ModelArchDSL/extract",
+  "facts": [
+    {
+      "id": "config:GOOGLE_PHOTOS_CONFIG_DIR",
+      "kind": "config",
+      "label": "GOOGLE_PHOTOS_CONFIG_DIR",
+      "sources": [
+        "src/google_photos_mcp/auth.py:23"
+      ]
+    },
+    {
+      "id": "module:src/google_photos_mcp",
+      "kind": "module",
+      "label": "src/google_photos_mcp",
+      "sources": [
+        "src/google_photos_mcp/__init__.py"
+      ],
+      "files": 4
+    }
+  ]
+}

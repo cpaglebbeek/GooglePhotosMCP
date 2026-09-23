@@ -1,0 +1,40 @@
+// GEGENEREERD door ModelArchDSL — niet met de hand bewerken.
+// Bron: archmodel/tobe.archdsl (ontwerp) + archmodel/asis.facts.json (code).
+set language archimate
+set title "GooglePhotosMCP — Fysiek"
+set subtitle "Architectuurplaat fysiek niveau (ArchiMate/Dragon1)"
+set purpose "Claude Code toegang geven tot albums en foto-metadata in Google Photos via de officiële Photos Library API, zonder foto's of albums te wijzigen."
+show legend true
+switch badges on
+set current state "As-is (code)"
+set target state "To-be (ontwerp)"
+
+Group laag_technology "Technologie" {
+    -width 620
+    -height 180
+}
+Node nd_host "Werkplek met Claude Code (Mac, venv/bin/google-photos-mcp)" in laag_technology {
+    -fill "#f0f9ff"
+    -stroke "#0284c7"
+    -attr status = "extern"
+}
+SystemSoftware ss_python "Python >= 3.10 venv + pakketten (mcp<2, google-api-python-client, google-auth-oauthlib, google-auth-httplib2, python-dotenv)" in laag_technology {
+    -fill "#f0f9ff"
+    -stroke "#0284c7"
+    -attr status = "extern"
+    -description "Afhankelijkheden staan in pyproject.toml; de extractor meet pyproject niet, daarom extern."
+}
+TechnologyInterface ti_stdio "stdio-transport" in laag_technology {
+    -stroke "#16a34a"
+    -attr status = "gebouwd"
+    -attr trace = "module:src/google_photos_mcp"
+}
+
+// Posities (deterministische raster-layout per ArchiMate-laag)
+pos laag_technology 40, 40
+pos nd_host 60, 90
+pos ss_python 260, 90
+pos ti_stdio 460, 90
+
+// Relaties — Dragon1-compatibel: werkwoordvorm, of ongetypeerd waar Dragon1 het type afleidt
+nd_host -> ss_python "host"

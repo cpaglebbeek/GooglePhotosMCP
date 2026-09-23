@@ -1,0 +1,107 @@
+// GEGENEREERD door ModelArchDSL — niet met de hand bewerken.
+// Bron: archmodel/tobe.archdsl (ontwerp) + archmodel/asis.facts.json (code).
+set language archimate
+set title "GooglePhotosMCP — Logisch"
+set subtitle "Architectuurplaat logisch niveau (ArchiMate/Dragon1)"
+set purpose "Claude Code toegang geven tot albums en foto-metadata in Google Photos via de officiële Photos Library API, zonder foto's of albums te wijzigen."
+show legend true
+switch badges on
+set current state "As-is (code)"
+set target state "To-be (ontwerp)"
+
+Group laag_application "Applicatie" {
+    -width 1220
+    -height 310
+}
+ApplicationComponent ac_server "MCP-server (FastMCP, server.py)" in laag_application {
+    -stroke "#16a34a"
+    -attr status = "gebouwd"
+    -attr trace = "module:src/google_photos_mcp"
+    -description "FastMCP 'Google Photos' met zeven tools; entrypoint google-photos-mcp (stdio)."
+}
+ApplicationInterface ai_tools "MCP-tools (7): list_albums, get_album, list_media_items, get_media_item, search_photos, list_album_photos, search_by_date" in laag_application {
+    -stroke "#16a34a"
+    -attr status = "gebouwd"
+    -attr trace = "module:src/google_photos_mcp"
+}
+ApplicationComponent ac_client "Photos-client (photos_client.py)" in laag_application {
+    -stroke "#16a34a"
+    -attr status = "gebouwd"
+    -attr trace = "module:src/google_photos_mcp"
+    -description "GooglePhotosClient: wrapper rond photoslibrary v1 (albums.list/get, mediaItems.list/get/search)."
+}
+ApplicationComponent ac_auth "OAuth2-module (auth.py)" in laag_application {
+    -stroke "#16a34a"
+    -attr status = "gebouwd"
+    -attr trace = "module:src/google_photos_mcp, config:GOOGLE_PHOTOS_CONFIG_DIR"
+    -description "Laadt/ververst credentials; eenmalige flow via InstalledAppFlow op poort 8085; entrypoint google-photos-auth."
+}
+DataObject do_album "Album (id, titel, aantal items)" in laag_application {
+    -stroke "#16a34a"
+    -attr status = "gebouwd"
+    -attr trace = "module:src/google_photos_mcp"
+}
+DataObject do_mediaitem "MediaItem (bestandsnaam, datum, afmetingen, camera)" in laag_application {
+    -stroke "#16a34a"
+    -attr status = "gebouwd"
+    -attr trace = "module:src/google_photos_mcp"
+}
+ApplicationComponent ac_claudecode "Claude Code (MCP-host, ~/.claude/.mcp.json)" in laag_application {
+    -fill "#f0f9ff"
+    -stroke "#0284c7"
+    -attr status = "extern"
+}
+ApplicationService as_photosapi "Google Photos Library API v1" in laag_application {
+    -fill "#f0f9ff"
+    -stroke "#0284c7"
+    -attr status = "extern"
+}
+ApplicationService as_googleoauth "Google OAuth2 (Cloud-project personalgmailapi-492411)" in laag_application {
+    -fill "#f0f9ff"
+    -stroke "#0284c7"
+    -attr status = "extern"
+}
+Artifact ar_configdir "Configmap ~/.config/google-photos-mcp (of GOOGLE_PHOTOS_CONFIG_DIR)" in laag_application {
+    -stroke "#16a34a"
+    -attr status = "gebouwd"
+    -attr trace = "config:GOOGLE_PHOTOS_CONFIG_DIR"
+}
+Artifact ar_oauthjson "oauth.json (OAuth-client)" in laag_application {
+    -stroke "#16a34a"
+    -attr status = "gebouwd"
+    -attr trace = "config:GOOGLE_PHOTOS_CONFIG_DIR"
+}
+Artifact ar_credjson "credentials.json (tokens, chmod 600)" in laag_application {
+    -stroke "#16a34a"
+    -attr status = "gebouwd"
+    -attr trace = "config:GOOGLE_PHOTOS_CONFIG_DIR"
+}
+
+// Posities (deterministische raster-layout per ArchiMate-laag)
+pos laag_application 40, 40
+pos ac_server 60, 90
+pos ai_tools 260, 90
+pos ac_client 460, 90
+pos ac_auth 660, 90
+pos do_album 860, 90
+pos do_mediaitem 1060, 90
+pos ac_claudecode 60, 220
+pos as_photosapi 260, 220
+pos as_googleoauth 460, 220
+pos ar_configdir 660, 220
+pos ar_oauthjson 860, 220
+pos ar_credjson 1060, 220
+
+// Relaties — Dragon1-compatibel: werkwoordvorm, of ongetypeerd waar Dragon1 het type afleidt
+ac_claudecode serves ai_tools "roept aan"
+ac_server composes ai_tools
+ac_server serves ac_client "gebruikt"
+ac_client serves ac_auth "haalt credentials"
+ac_client serves as_photosapi "REST-aanroepen"
+ac_auth serves as_googleoauth "OAuth2-flow + refresh"
+ac_client accesses do_album "leest"
+ac_client accesses do_mediaitem "leest"
+ac_auth accesses ar_credjson "leest en schrijft"
+ac_auth accesses ar_oauthjson "leest"
+ar_configdir composes ar_oauthjson
+ar_configdir composes ar_credjson

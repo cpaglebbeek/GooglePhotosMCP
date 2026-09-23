@@ -1,0 +1,148 @@
+// GooglePhotosMCP — architectuurontwerp (to-be) in ArchDSL.
+// Bron van het ONTWERP. Platen in generated/ komen hieruit plus de gemeten code
+// (asis.facts.json) via /ModelArchDSL update. Niet de platen bewerken, wel dit bestand.
+// Inhoud overgenomen uit CLAUDE.md, pyproject.toml, .env.example en src/google_photos_mcp/*.py.
+//
+// Gemeten feiten zijn schaars: de extractor ziet één module (src/google_photos_mcp) en één
+// configvariabele. pyproject.toml-afhankelijkheden en MCP-tools zijn geen feitsoort; die
+// staan hieronder op de module getraced of als extern.
+//
+// Conventies: ArchPortal/docs/DSL_CONVENTIES.md
+//   -view conceptueel|logisch|fysiek · -attr trace = "<glob op feit-id>" · -attr status = "gepland"|"extern"
+
+set title "GooglePhotosMCP"
+set subtitle "Google Photos als MCP-server voor Claude Code"
+set purpose "Claude Code toegang geven tot albums en foto-metadata in Google Photos via de officiële Photos Library API, zonder foto's of albums te wijzigen."
+
+// ================= Conceptueel =================
+Driver dr_fotos "Foto's en albums bevraagbaar vanuit Claude"
+Goal go_metadata "Albums en foto-metadata opzoeken op datum, categorie en mediatype"
+Requirement rq_oauth "OAuth2-login op eigen Google Cloud-project (Claude-Gmail)"
+Requirement rq_stdio "Integratie met Claude Code via stdio-transport"
+Constraint cn_readonly "Read-only: wijzigt nooit foto's of albums"
+Constraint cn_geenpixels "Alleen metadata, geen pixels (API-beperking)"
+Constraint cn_scope "Scope: CLAUDE.md zegt photoslibrary.readonly, code vraagt photoslibrary" {
+    -description "Afwijking tussen documentatie en code (auth.py SCOPES). De read-only-eis wordt nu alleen door de toolset afgedwongen, niet door de OAuth-scope."
+}
+BusinessActor ba_christian "Christian (gebruiker van Claude Code)"
+BusinessActor ba_claude "Claude Code (MCP-client)"
+BusinessService bs_fotos "Foto-inzage vanuit Claude"
+BusinessProcess bp_bladeren "Albums en recente foto's doorbladeren"
+BusinessProcess bp_zoeken "Foto's zoeken op filters"
+
+// Stappen van de klantreizen
+BusinessProcess bp_oauth_bestand "OAuth-client (oauth.json) uit Google Cloud Console plaatsen"
+BusinessProcess bp_auth_draaien "google-photos-auth draaien"
+BusinessProcess bp_toestemming "Toestemming geven in de browser (localhost:8085)"
+BusinessProcess bp_vraag "Vraag over foto's stellen aan Claude"
+BusinessProcess bp_tool_aanroep "Claude roept een MCP-tool aan"
+BusinessProcess bp_antwoord "Metadata als JSON terugkrijgen"
+
+// ================= Logisch =================
+ApplicationComponent ac_server "MCP-server (FastMCP, server.py)" {
+    -attr trace = "module:src/google_photos_mcp"
+    -description "FastMCP 'Google Photos' met zeven tools; entrypoint google-photos-mcp (stdio)."
+}
+ApplicationInterface ai_tools "MCP-tools (7): list_albums, get_album, list_media_items, get_media_item, search_photos, list_album_photos, search_by_date" {
+    -attr trace = "module:src/google_photos_mcp"
+}
+ApplicationComponent ac_client "Photos-client (photos_client.py)" {
+    -attr trace = "module:src/google_photos_mcp"
+    -description "GooglePhotosClient: wrapper rond photoslibrary v1 (albums.list/get, mediaItems.list/get/search)."
+}
+ApplicationComponent ac_auth "OAuth2-module (auth.py)" {
+    -attr trace = "module:src/google_photos_mcp, config:GOOGLE_PHOTOS_CONFIG_DIR"
+    -description "Laadt/ververst credentials; eenmalige flow via InstalledAppFlow op poort 8085; entrypoint google-photos-auth."
+}
+DataObject do_album "Album (id, titel, aantal items)" {
+    -attr trace = "module:src/google_photos_mcp"
+}
+DataObject do_mediaitem "MediaItem (bestandsnaam, datum, afmetingen, camera)" {
+    -attr trace = "module:src/google_photos_mcp"
+}
+ApplicationComponent ac_claudecode "Claude Code (MCP-host, ~/.claude/.mcp.json)" {
+    -attr status = "extern"
+}
+ApplicationService as_photosapi "Google Photos Library API v1" {
+    -attr status = "extern"
+}
+ApplicationService as_googleoauth "Google OAuth2 (Cloud-project personalgmailapi-492411)" {
+    -attr status = "extern"
+}
+
+// ================= Fysiek =================
+Node nd_host "Werkplek met Claude Code (Mac, venv/bin/google-photos-mcp)" {
+    -attr status = "extern"
+}
+SystemSoftware ss_python "Python >= 3.10 venv + pakketten (mcp<2, google-api-python-client, google-auth-oauthlib, google-auth-httplib2, python-dotenv)" {
+    -attr status = "extern"
+    -description "Afhankelijkheden staan in pyproject.toml; de extractor meet pyproject niet, daarom extern."
+}
+TechnologyInterface ti_stdio "stdio-transport" {
+    -attr trace = "module:src/google_photos_mcp"
+}
+Artifact ar_configdir "Configmap ~/.config/google-photos-mcp (of GOOGLE_PHOTOS_CONFIG_DIR)" {
+    -attr trace = "config:GOOGLE_PHOTOS_CONFIG_DIR"
+}
+Artifact ar_oauthjson "oauth.json (OAuth-client)" {
+    -attr trace = "config:GOOGLE_PHOTOS_CONFIG_DIR"
+}
+Artifact ar_credjson "credentials.json (tokens, chmod 600)" {
+    -attr trace = "config:GOOGLE_PHOTOS_CONFIG_DIR"
+}
+
+// ================= Relaties =================
+dr_fotos -> go_metadata : influence "drijft aan"
+go_metadata -> rq_oauth : influence "vereist"
+go_metadata -> rq_stdio : influence "vereist"
+cn_readonly -> ai_tools : influence "begrenst"
+cn_geenpixels -> do_mediaitem : influence "begrenst"
+cn_scope -> ac_auth : influence "afwijking"
+ba_christian -> bp_vraag : assignment
+ba_christian -> bp_auth_draaien : assignment
+ba_claude -> bp_tool_aanroep : assignment
+bp_bladeren -> bs_fotos : realization
+bp_zoeken -> bs_fotos : realization
+
+ai_tools -> bp_bladeren : serving
+ai_tools -> bp_zoeken : serving
+as_googleoauth -> bp_oauth_bestand : serving
+ac_auth -> bp_auth_draaien : serving
+as_googleoauth -> bp_toestemming : serving
+ac_claudecode -> bp_vraag : serving
+ai_tools -> bp_tool_aanroep : serving
+ac_server -> bp_antwoord : serving
+
+ac_claudecode -> ai_tools : serving "roept aan"
+ac_server -> ai_tools : composition
+ac_server -> ac_client : serving "gebruikt"
+ac_client -> ac_auth : serving "haalt credentials"
+ac_client -> as_photosapi : serving "REST-aanroepen"
+ac_auth -> as_googleoauth : serving "OAuth2-flow + refresh"
+ac_client -> do_album : access "leest"
+ac_client -> do_mediaitem : access "leest"
+ac_auth -> ar_credjson : access "leest en schrijft"
+ac_auth -> ar_oauthjson : access "leest"
+ar_configdir -> ar_oauthjson : composition
+ar_configdir -> ar_credjson : composition
+
+nd_host -> ss_python : assignment "host"
+ss_python -> ac_server : realization
+ss_python -> ac_auth : realization "google-photos-auth"
+ti_stdio -> ac_claudecode : serving "MCP over stdio"
+ac_server -> ti_stdio : realization
+nd_host -> ar_configdir : assignment
+
+// ================= Klantreizen =================
+Viewpoint reis_koppelen "Klantreis: Google Photos koppelen (eenmalig)" {
+    -attr journey = "true"
+    -attr actor = "ba_christian"
+    -attr steps = "bp_oauth_bestand bp_auth_draaien bp_toestemming"
+    -description "OAuth-client downloaden en plaatsen, google-photos-auth draaien, in de browser toestemming geven; tokens komen in credentials.json."
+}
+Viewpoint reis_vragen "Klantreis: foto's opzoeken vanuit Claude" {
+    -attr journey = "true"
+    -attr actor = "ba_christian"
+    -attr steps = "bp_vraag bp_tool_aanroep bp_zoeken bp_antwoord"
+    -description "Christian stelt een vraag, Claude roept een MCP-tool aan, de server zoekt via de Photos Library API en geeft metadata als JSON terug."
+}

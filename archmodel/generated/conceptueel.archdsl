@@ -1,0 +1,107 @@
+// GEGENEREERD door ModelArchDSL — niet met de hand bewerken.
+// Bron: archmodel/tobe.archdsl (ontwerp) + archmodel/asis.facts.json (code).
+set language archimate
+set title "GooglePhotosMCP — Conceptueel"
+set subtitle "Architectuurplaat conceptueel niveau (ArchiMate/Dragon1)"
+set purpose "Claude Code toegang geven tot albums en foto-metadata in Google Photos via de officiële Photos Library API, zonder foto's of albums te wijzigen."
+show legend true
+switch badges on
+set current state "As-is (code)"
+set target state "To-be (ontwerp)"
+
+Group laag_motivation "Motivatie" {
+    -width 1220
+    -height 310
+}
+Driver dr_fotos "Foto's en albums bevraagbaar vanuit Claude" in laag_motivation {
+    -attr status = "ontwerp"
+}
+Goal go_metadata "Albums en foto-metadata opzoeken op datum, categorie en mediatype" in laag_motivation {
+    -attr status = "ontwerp"
+}
+Requirement rq_oauth "OAuth2-login op eigen Google Cloud-project (Claude-Gmail)" in laag_motivation {
+    -attr status = "ontwerp"
+}
+Requirement rq_stdio "Integratie met Claude Code via stdio-transport" in laag_motivation {
+    -attr status = "ontwerp"
+}
+Constraint cn_readonly "Read-only: wijzigt nooit foto's of albums" in laag_motivation {
+    -attr status = "ontwerp"
+}
+Constraint cn_geenpixels "Alleen metadata, geen pixels (API-beperking)" in laag_motivation {
+    -attr status = "ontwerp"
+}
+Constraint cn_scope "Scope: CLAUDE.md zegt photoslibrary.readonly, code vraagt photoslibrary" in laag_motivation {
+    -attr status = "ontwerp"
+    -description "Afwijking tussen documentatie en code (auth.py SCOPES). De read-only-eis wordt nu alleen door de toolset afgedwongen, niet door de OAuth-scope."
+}
+
+Group laag_business "Business" {
+    -width 1220
+    -height 310
+}
+BusinessActor ba_christian "Christian (gebruiker van Claude Code)" in laag_business {
+    -attr status = "ontwerp"
+}
+BusinessActor ba_claude "Claude Code (MCP-client)" in laag_business {
+    -attr status = "ontwerp"
+}
+BusinessService bs_fotos "Foto-inzage vanuit Claude" in laag_business {
+    -attr status = "ontwerp"
+}
+BusinessProcess bp_bladeren "Albums en recente foto's doorbladeren" in laag_business {
+    -attr status = "ontwerp"
+}
+BusinessProcess bp_zoeken "Foto's zoeken op filters" in laag_business {
+    -attr status = "ontwerp"
+}
+BusinessProcess bp_oauth_bestand "OAuth-client (oauth.json) uit Google Cloud Console plaatsen" in laag_business {
+    -attr status = "ontwerp"
+}
+BusinessProcess bp_auth_draaien "google-photos-auth draaien" in laag_business {
+    -attr status = "ontwerp"
+}
+BusinessProcess bp_toestemming "Toestemming geven in de browser (localhost:8085)" in laag_business {
+    -attr status = "ontwerp"
+}
+BusinessProcess bp_vraag "Vraag over foto's stellen aan Claude" in laag_business {
+    -attr status = "ontwerp"
+}
+BusinessProcess bp_tool_aanroep "Claude roept een MCP-tool aan" in laag_business {
+    -attr status = "ontwerp"
+}
+BusinessProcess bp_antwoord "Metadata als JSON terugkrijgen" in laag_business {
+    -attr status = "ontwerp"
+}
+
+// Posities (deterministische raster-layout per ArchiMate-laag)
+pos laag_motivation 40, 40
+pos dr_fotos 60, 90
+pos go_metadata 260, 90
+pos rq_oauth 460, 90
+pos rq_stdio 660, 90
+pos cn_readonly 860, 90
+pos cn_geenpixels 1060, 90
+pos cn_scope 60, 220
+pos laag_business 40, 390
+pos ba_christian 60, 440
+pos ba_claude 260, 440
+pos bs_fotos 460, 440
+pos bp_bladeren 660, 440
+pos bp_zoeken 860, 440
+pos bp_oauth_bestand 1060, 440
+pos bp_auth_draaien 60, 570
+pos bp_toestemming 260, 570
+pos bp_vraag 460, 570
+pos bp_tool_aanroep 660, 570
+pos bp_antwoord 860, 570
+
+// Relaties — Dragon1-compatibel: werkwoordvorm, of ongetypeerd waar Dragon1 het type afleidt
+dr_fotos influences go_metadata "drijft aan"
+go_metadata influences rq_oauth "vereist"
+go_metadata influences rq_stdio "vereist"
+ba_christian -> bp_vraag
+ba_christian -> bp_auth_draaien
+ba_claude -> bp_tool_aanroep
+bp_bladeren realizes bs_fotos
+bp_zoeken realizes bs_fotos

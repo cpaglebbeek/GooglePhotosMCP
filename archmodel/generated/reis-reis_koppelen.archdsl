@@ -1,0 +1,66 @@
+// GEGENEREERD door ModelArchDSL — niet met de hand bewerken.
+// Bron: archmodel/tobe.archdsl (ontwerp) + archmodel/asis.facts.json (code).
+set language archimate
+set title "GooglePhotosMCP — Klantreis: Google Photos koppelen (eenmalig)"
+set subtitle "Klantreis (stappen genummerd, afspeelbaar in het portaal)"
+set purpose "OAuth-client downloaden en plaatsen, google-photos-auth draaien, in de browser toestemming geven; tokens komen in credentials.json."
+show legend true
+switch badges on
+set current state "As-is (code)"
+set target state "To-be (ontwerp)"
+
+Group laag_business "Business" {
+    -width 820
+    -height 180
+}
+BusinessActor ba_christian "Christian (gebruiker van Claude Code)" in laag_business {
+    -attr status = "ontwerp"
+}
+BusinessProcess bp_oauth_bestand "OAuth-client (oauth.json) uit Google Cloud Console plaatsen" in laag_business {
+    -step 1
+    -attr status = "ontwerp"
+}
+BusinessProcess bp_auth_draaien "google-photos-auth draaien" in laag_business {
+    -step 2
+    -attr status = "ontwerp"
+}
+BusinessProcess bp_toestemming "Toestemming geven in de browser (localhost:8085)" in laag_business {
+    -step 3
+    -attr status = "ontwerp"
+}
+
+Group laag_application "Applicatie" {
+    -width 420
+    -height 180
+}
+ApplicationComponent ac_auth "OAuth2-module (auth.py)" in laag_application {
+    -stroke "#16a34a"
+    -attr status = "gebouwd"
+    -attr trace = "module:src/google_photos_mcp, config:GOOGLE_PHOTOS_CONFIG_DIR"
+    -description "Laadt/ververst credentials; eenmalige flow via InstalledAppFlow op poort 8085; entrypoint google-photos-auth."
+}
+ApplicationService as_googleoauth "Google OAuth2 (Cloud-project personalgmailapi-492411)" in laag_application {
+    -fill "#f0f9ff"
+    -stroke "#0284c7"
+    -attr status = "extern"
+}
+
+// Posities (deterministische raster-layout per ArchiMate-laag)
+pos laag_business 40, 40
+pos ba_christian 60, 90
+pos bp_oauth_bestand 260, 90
+pos bp_auth_draaien 460, 90
+pos bp_toestemming 660, 90
+pos laag_application 40, 260
+pos ac_auth 60, 310
+pos as_googleoauth 260, 310
+
+// Relaties — Dragon1-compatibel: werkwoordvorm, of ongetypeerd waar Dragon1 het type afleidt
+ba_christian -> bp_auth_draaien
+as_googleoauth serves bp_oauth_bestand
+ac_auth serves bp_auth_draaien
+as_googleoauth serves bp_toestemming
+ac_auth serves as_googleoauth "OAuth2-flow + refresh"
+bp_oauth_bestand -> bp_auth_draaien
+bp_auth_draaien -> bp_toestemming
+ba_christian -> bp_oauth_bestand "start"

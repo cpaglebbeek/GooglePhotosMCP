@@ -1,0 +1,89 @@
+// GEGENEREERD door ModelArchDSL — niet met de hand bewerken.
+// Bron: archmodel/tobe.archdsl (ontwerp) + archmodel/asis.facts.json (code).
+set language archimate
+set title "GooglePhotosMCP — Klantreis: foto's opzoeken vanuit Claude"
+set subtitle "Klantreis (stappen genummerd, afspeelbaar in het portaal)"
+set purpose "Christian stelt een vraag, Claude roept een MCP-tool aan, de server zoekt via de Photos Library API en geeft metadata als JSON terug."
+show legend true
+switch badges on
+set current state "As-is (code)"
+set target state "To-be (ontwerp)"
+
+Group laag_business "Business" {
+    -width 1220
+    -height 310
+}
+BusinessActor ba_christian "Christian (gebruiker van Claude Code)" in laag_business {
+    -attr status = "ontwerp"
+}
+BusinessProcess bp_vraag "Vraag over foto's stellen aan Claude" in laag_business {
+    -step 1
+    -attr status = "ontwerp"
+}
+BusinessProcess bp_tool_aanroep "Claude roept een MCP-tool aan" in laag_business {
+    -step 2
+    -attr status = "ontwerp"
+}
+BusinessProcess bp_zoeken "Foto's zoeken op filters" in laag_business {
+    -step 3
+    -attr status = "ontwerp"
+}
+BusinessProcess bp_antwoord "Metadata als JSON terugkrijgen" in laag_business {
+    -step 4
+    -attr status = "ontwerp"
+}
+BusinessActor ba_claude "Claude Code (MCP-client)" in laag_business {
+    -attr status = "ontwerp"
+}
+BusinessService bs_fotos "Foto-inzage vanuit Claude" in laag_business {
+    -attr status = "ontwerp"
+}
+
+Group laag_application "Applicatie" {
+    -width 620
+    -height 180
+}
+ApplicationComponent ac_claudecode "Claude Code (MCP-host, ~/.claude/.mcp.json)" in laag_application {
+    -fill "#f0f9ff"
+    -stroke "#0284c7"
+    -attr status = "extern"
+}
+ApplicationInterface ai_tools "MCP-tools (7): list_albums, get_album, list_media_items, get_media_item, search_photos, list_album_photos, search_by_date" in laag_application {
+    -stroke "#16a34a"
+    -attr status = "gebouwd"
+    -attr trace = "module:src/google_photos_mcp"
+}
+ApplicationComponent ac_server "MCP-server (FastMCP, server.py)" in laag_application {
+    -stroke "#16a34a"
+    -attr status = "gebouwd"
+    -attr trace = "module:src/google_photos_mcp"
+    -description "FastMCP 'Google Photos' met zeven tools; entrypoint google-photos-mcp (stdio)."
+}
+
+// Posities (deterministische raster-layout per ArchiMate-laag)
+pos laag_business 40, 40
+pos ba_christian 60, 90
+pos bp_vraag 260, 90
+pos bp_tool_aanroep 460, 90
+pos bp_zoeken 660, 90
+pos bp_antwoord 860, 90
+pos ba_claude 1060, 90
+pos bs_fotos 60, 220
+pos laag_application 40, 390
+pos ac_claudecode 60, 440
+pos ai_tools 260, 440
+pos ac_server 460, 440
+
+// Relaties — Dragon1-compatibel: werkwoordvorm, of ongetypeerd waar Dragon1 het type afleidt
+ba_christian -> bp_vraag
+ba_claude -> bp_tool_aanroep
+bp_zoeken realizes bs_fotos
+ai_tools serves bp_zoeken
+ac_claudecode serves bp_vraag
+ai_tools serves bp_tool_aanroep
+ac_server serves bp_antwoord
+ac_claudecode serves ai_tools "roept aan"
+ac_server composes ai_tools
+bp_vraag -> bp_tool_aanroep
+bp_tool_aanroep -> bp_zoeken
+bp_zoeken -> bp_antwoord

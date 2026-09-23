@@ -1,0 +1,745 @@
+{
+  "plates": [
+    {
+      "file": "conceptueel.archdsl",
+      "kind": "niveau",
+      "level": "conceptueel",
+      "label": "Conceptueel",
+      "elements": 18,
+      "relations": 8,
+      "sha256": "b6d448188f54b6793d33d8dace006da8fa9b843a608f08a708f88adbedfebc00"
+    },
+    {
+      "file": "logisch.archdsl",
+      "kind": "niveau",
+      "level": "logisch",
+      "label": "Logisch",
+      "elements": 12,
+      "relations": 12,
+      "sha256": "691e5642179ce22814aae9bfaf711ece42d1b9f213c428b821550ff26f4bbfca"
+    },
+    {
+      "file": "fysiek.archdsl",
+      "kind": "niveau",
+      "level": "fysiek",
+      "label": "Fysiek",
+      "elements": 3,
+      "relations": 1,
+      "sha256": "23cf37c31c853c194069569cfe08e2a7db8a80f25c874c8ede99eea4f9bebdd6"
+    },
+    {
+      "file": "reis-reis_koppelen.archdsl",
+      "kind": "klantreis",
+      "journey": "reis_koppelen",
+      "label": "Klantreis: Google Photos koppelen (eenmalig)",
+      "steps": [
+        "bp_oauth_bestand",
+        "bp_auth_draaien",
+        "bp_toestemming"
+      ],
+      "actor": "ba_christian",
+      "elements": 6,
+      "relations": 8,
+      "sha256": "847a56250519c8a74d7c3f3aa446a49a93569f4c1cac1b621d05e29b8d5b7964"
+    },
+    {
+      "file": "reis-reis_vragen.archdsl",
+      "kind": "klantreis",
+      "journey": "reis_vragen",
+      "label": "Klantreis: foto's opzoeken vanuit Claude",
+      "steps": [
+        "bp_vraag",
+        "bp_tool_aanroep",
+        "bp_zoeken",
+        "bp_antwoord"
+      ],
+      "actor": "ba_christian",
+      "elements": 10,
+      "relations": 12,
+      "sha256": "89be068825f9c625e21c9c1af066a6d5781597c41dc9df402e10d30f8a2cbe00"
+    }
+  ],
+  "repo": "GooglePhotosMCP",
+  "title": "GooglePhotosMCP",
+  "purpose": "Claude Code toegang geven tot albums en foto-metadata in Google Photos via de officiële Photos Library API, zonder foto's of albums te wijzigen.",
+  "tool": {
+    "name": "ModelArchDSL",
+    "version": "0.1.0",
+    "engineSha256": "0bdabb3b46febb6190ec1e1698d285c5b140e15f4c7f07e7c22a85f2105dacae"
+  },
+  "status": {
+    "gebouwd": {
+      "label": "Gebouwd",
+      "stroke": "#16a34a"
+    },
+    "deels": {
+      "label": "Deels gebouwd",
+      "stroke": "#ca8a04",
+      "fill": "#fefce8"
+    },
+    "gepland": {
+      "label": "Gepland (to-be)",
+      "stroke": "#ea580c",
+      "fill": "#fff7ed",
+      "state": "target"
+    },
+    "alleen_code": {
+      "label": "Alleen in code",
+      "stroke": "#7c3aed",
+      "fill": "#f5f3ff",
+      "state": "current"
+    },
+    "ongetraceerd": {
+      "label": "Niet traceerbaar",
+      "stroke": "#64748b"
+    },
+    "extern": {
+      "label": "Extern (andere repo)",
+      "stroke": "#0284c7",
+      "fill": "#f0f9ff"
+    },
+    "ontwerp": {
+      "label": "Ontwerp",
+      "stroke": ""
+    }
+  },
+  "counts": {
+    "gebouwd": 10,
+    "deels": 0,
+    "gepland": 0,
+    "alleen_code": 0,
+    "ongetraceerd": 0,
+    "extern": 5,
+    "ontwerp": 18
+  },
+  "facts": 2,
+  "unclaimedFacts": 0,
+  "warnings": [],
+  "elements": [
+    {
+      "id": "ac_auth",
+      "type": "ApplicationComponent",
+      "label": "OAuth2-module (auth.py)",
+      "layer": "application",
+      "levels": [
+        "logisch"
+      ],
+      "status": "gebouwd",
+      "trace": [
+        "module:src/google_photos_mcp",
+        "config:GOOGLE_PHOTOS_CONFIG_DIR"
+      ],
+      "missing": [],
+      "auto": false,
+      "facts": [
+        {
+          "id": "config:GOOGLE_PHOTOS_CONFIG_DIR",
+          "sources": [
+            "src/google_photos_mcp/auth.py:23"
+          ]
+        },
+        {
+          "id": "module:src/google_photos_mcp",
+          "sources": [
+            "src/google_photos_mcp/__init__.py"
+          ]
+        }
+      ],
+      "factCount": 2,
+      "description": "Laadt/ververst credentials; eenmalige flow via InstalledAppFlow op poort 8085; entrypoint google-photos-auth."
+    },
+    {
+      "id": "ac_client",
+      "type": "ApplicationComponent",
+      "label": "Photos-client (photos_client.py)",
+      "layer": "application",
+      "levels": [
+        "logisch"
+      ],
+      "status": "gebouwd",
+      "trace": [
+        "module:src/google_photos_mcp"
+      ],
+      "missing": [],
+      "auto": false,
+      "facts": [
+        {
+          "id": "module:src/google_photos_mcp",
+          "sources": [
+            "src/google_photos_mcp/__init__.py"
+          ]
+        }
+      ],
+      "factCount": 1,
+      "description": "GooglePhotosClient: wrapper rond photoslibrary v1 (albums.list/get, mediaItems.list/get/search)."
+    },
+    {
+      "id": "ac_server",
+      "type": "ApplicationComponent",
+      "label": "MCP-server (FastMCP, server.py)",
+      "layer": "application",
+      "levels": [
+        "logisch"
+      ],
+      "status": "gebouwd",
+      "trace": [
+        "module:src/google_photos_mcp"
+      ],
+      "missing": [],
+      "auto": false,
+      "facts": [
+        {
+          "id": "module:src/google_photos_mcp",
+          "sources": [
+            "src/google_photos_mcp/__init__.py"
+          ]
+        }
+      ],
+      "factCount": 1,
+      "description": "FastMCP 'Google Photos' met zeven tools; entrypoint google-photos-mcp (stdio)."
+    },
+    {
+      "id": "ai_tools",
+      "type": "ApplicationInterface",
+      "label": "MCP-tools (7): list_albums, get_album, list_media_items, get_media_item, search_photos, list_album_photos, search_by_date",
+      "layer": "application",
+      "levels": [
+        "logisch"
+      ],
+      "status": "gebouwd",
+      "trace": [
+        "module:src/google_photos_mcp"
+      ],
+      "missing": [],
+      "auto": false,
+      "facts": [
+        {
+          "id": "module:src/google_photos_mcp",
+          "sources": [
+            "src/google_photos_mcp/__init__.py"
+          ]
+        }
+      ],
+      "factCount": 1,
+      "description": ""
+    },
+    {
+      "id": "ar_configdir",
+      "type": "Artifact",
+      "label": "Configmap ~/.config/google-photos-mcp (of GOOGLE_PHOTOS_CONFIG_DIR)",
+      "layer": "application",
+      "levels": [
+        "logisch"
+      ],
+      "status": "gebouwd",
+      "trace": [
+        "config:GOOGLE_PHOTOS_CONFIG_DIR"
+      ],
+      "missing": [],
+      "auto": false,
+      "facts": [
+        {
+          "id": "config:GOOGLE_PHOTOS_CONFIG_DIR",
+          "sources": [
+            "src/google_photos_mcp/auth.py:23"
+          ]
+        }
+      ],
+      "factCount": 1,
+      "description": ""
+    },
+    {
+      "id": "ar_credjson",
+      "type": "Artifact",
+      "label": "credentials.json (tokens, chmod 600)",
+      "layer": "application",
+      "levels": [
+        "logisch"
+      ],
+      "status": "gebouwd",
+      "trace": [
+        "config:GOOGLE_PHOTOS_CONFIG_DIR"
+      ],
+      "missing": [],
+      "auto": false,
+      "facts": [
+        {
+          "id": "config:GOOGLE_PHOTOS_CONFIG_DIR",
+          "sources": [
+            "src/google_photos_mcp/auth.py:23"
+          ]
+        }
+      ],
+      "factCount": 1,
+      "description": ""
+    },
+    {
+      "id": "ar_oauthjson",
+      "type": "Artifact",
+      "label": "oauth.json (OAuth-client)",
+      "layer": "application",
+      "levels": [
+        "logisch"
+      ],
+      "status": "gebouwd",
+      "trace": [
+        "config:GOOGLE_PHOTOS_CONFIG_DIR"
+      ],
+      "missing": [],
+      "auto": false,
+      "facts": [
+        {
+          "id": "config:GOOGLE_PHOTOS_CONFIG_DIR",
+          "sources": [
+            "src/google_photos_mcp/auth.py:23"
+          ]
+        }
+      ],
+      "factCount": 1,
+      "description": ""
+    },
+    {
+      "id": "do_album",
+      "type": "DataObject",
+      "label": "Album (id, titel, aantal items)",
+      "layer": "application",
+      "levels": [
+        "logisch"
+      ],
+      "status": "gebouwd",
+      "trace": [
+        "module:src/google_photos_mcp"
+      ],
+      "missing": [],
+      "auto": false,
+      "facts": [
+        {
+          "id": "module:src/google_photos_mcp",
+          "sources": [
+            "src/google_photos_mcp/__init__.py"
+          ]
+        }
+      ],
+      "factCount": 1,
+      "description": ""
+    },
+    {
+      "id": "do_mediaitem",
+      "type": "DataObject",
+      "label": "MediaItem (bestandsnaam, datum, afmetingen, camera)",
+      "layer": "application",
+      "levels": [
+        "logisch"
+      ],
+      "status": "gebouwd",
+      "trace": [
+        "module:src/google_photos_mcp"
+      ],
+      "missing": [],
+      "auto": false,
+      "facts": [
+        {
+          "id": "module:src/google_photos_mcp",
+          "sources": [
+            "src/google_photos_mcp/__init__.py"
+          ]
+        }
+      ],
+      "factCount": 1,
+      "description": ""
+    },
+    {
+      "id": "ti_stdio",
+      "type": "TechnologyInterface",
+      "label": "stdio-transport",
+      "layer": "technology",
+      "levels": [
+        "fysiek"
+      ],
+      "status": "gebouwd",
+      "trace": [
+        "module:src/google_photos_mcp"
+      ],
+      "missing": [],
+      "auto": false,
+      "facts": [
+        {
+          "id": "module:src/google_photos_mcp",
+          "sources": [
+            "src/google_photos_mcp/__init__.py"
+          ]
+        }
+      ],
+      "factCount": 1,
+      "description": ""
+    },
+    {
+      "id": "ac_claudecode",
+      "type": "ApplicationComponent",
+      "label": "Claude Code (MCP-host, ~/.claude/.mcp.json)",
+      "layer": "application",
+      "levels": [
+        "logisch"
+      ],
+      "status": "extern",
+      "trace": [],
+      "missing": [],
+      "auto": false,
+      "facts": [],
+      "factCount": 0,
+      "description": ""
+    },
+    {
+      "id": "as_googleoauth",
+      "type": "ApplicationService",
+      "label": "Google OAuth2 (Cloud-project personalgmailapi-492411)",
+      "layer": "application",
+      "levels": [
+        "logisch"
+      ],
+      "status": "extern",
+      "trace": [],
+      "missing": [],
+      "auto": false,
+      "facts": [],
+      "factCount": 0,
+      "description": ""
+    },
+    {
+      "id": "as_photosapi",
+      "type": "ApplicationService",
+      "label": "Google Photos Library API v1",
+      "layer": "application",
+      "levels": [
+        "logisch"
+      ],
+      "status": "extern",
+      "trace": [],
+      "missing": [],
+      "auto": false,
+      "facts": [],
+      "factCount": 0,
+      "description": ""
+    },
+    {
+      "id": "nd_host",
+      "type": "Node",
+      "label": "Werkplek met Claude Code (Mac, venv/bin/google-photos-mcp)",
+      "layer": "technology",
+      "levels": [
+        "fysiek"
+      ],
+      "status": "extern",
+      "trace": [],
+      "missing": [],
+      "auto": false,
+      "facts": [],
+      "factCount": 0,
+      "description": ""
+    },
+    {
+      "id": "ss_python",
+      "type": "SystemSoftware",
+      "label": "Python >= 3.10 venv + pakketten (mcp<2, google-api-python-client, google-auth-oauthlib, google-auth-httplib2, python-dotenv)",
+      "layer": "technology",
+      "levels": [
+        "fysiek"
+      ],
+      "status": "extern",
+      "trace": [],
+      "missing": [],
+      "auto": false,
+      "facts": [],
+      "factCount": 0,
+      "description": "Afhankelijkheden staan in pyproject.toml; de extractor meet pyproject niet, daarom extern."
+    },
+    {
+      "id": "ba_christian",
+      "type": "BusinessActor",
+      "label": "Christian (gebruiker van Claude Code)",
+      "layer": "business",
+      "levels": [
+        "conceptueel"
+      ],
+      "status": "ontwerp",
+      "trace": [],
+      "missing": [],
+      "auto": false,
+      "facts": [],
+      "factCount": 0,
+      "description": ""
+    },
+    {
+      "id": "ba_claude",
+      "type": "BusinessActor",
+      "label": "Claude Code (MCP-client)",
+      "layer": "business",
+      "levels": [
+        "conceptueel"
+      ],
+      "status": "ontwerp",
+      "trace": [],
+      "missing": [],
+      "auto": false,
+      "facts": [],
+      "factCount": 0,
+      "description": ""
+    },
+    {
+      "id": "bp_antwoord",
+      "type": "BusinessProcess",
+      "label": "Metadata als JSON terugkrijgen",
+      "layer": "business",
+      "levels": [
+        "conceptueel"
+      ],
+      "status": "ontwerp",
+      "trace": [],
+      "missing": [],
+      "auto": false,
+      "facts": [],
+      "factCount": 0,
+      "description": ""
+    },
+    {
+      "id": "bp_auth_draaien",
+      "type": "BusinessProcess",
+      "label": "google-photos-auth draaien",
+      "layer": "business",
+      "levels": [
+        "conceptueel"
+      ],
+      "status": "ontwerp",
+      "trace": [],
+      "missing": [],
+      "auto": false,
+      "facts": [],
+      "factCount": 0,
+      "description": ""
+    },
+    {
+      "id": "bp_bladeren",
+      "type": "BusinessProcess",
+      "label": "Albums en recente foto's doorbladeren",
+      "layer": "business",
+      "levels": [
+        "conceptueel"
+      ],
+      "status": "ontwerp",
+      "trace": [],
+      "missing": [],
+      "auto": false,
+      "facts": [],
+      "factCount": 0,
+      "description": ""
+    },
+    {
+      "id": "bp_oauth_bestand",
+      "type": "BusinessProcess",
+      "label": "OAuth-client (oauth.json) uit Google Cloud Console plaatsen",
+      "layer": "business",
+      "levels": [
+        "conceptueel"
+      ],
+      "status": "ontwerp",
+      "trace": [],
+      "missing": [],
+      "auto": false,
+      "facts": [],
+      "factCount": 0,
+      "description": ""
+    },
+    {
+      "id": "bp_toestemming",
+      "type": "BusinessProcess",
+      "label": "Toestemming geven in de browser (localhost:8085)",
+      "layer": "business",
+      "levels": [
+        "conceptueel"
+      ],
+      "status": "ontwerp",
+      "trace": [],
+      "missing": [],
+      "auto": false,
+      "facts": [],
+      "factCount": 0,
+      "description": ""
+    },
+    {
+      "id": "bp_tool_aanroep",
+      "type": "BusinessProcess",
+      "label": "Claude roept een MCP-tool aan",
+      "layer": "business",
+      "levels": [
+        "conceptueel"
+      ],
+      "status": "ontwerp",
+      "trace": [],
+      "missing": [],
+      "auto": false,
+      "facts": [],
+      "factCount": 0,
+      "description": ""
+    },
+    {
+      "id": "bp_vraag",
+      "type": "BusinessProcess",
+      "label": "Vraag over foto's stellen aan Claude",
+      "layer": "business",
+      "levels": [
+        "conceptueel"
+      ],
+      "status": "ontwerp",
+      "trace": [],
+      "missing": [],
+      "auto": false,
+      "facts": [],
+      "factCount": 0,
+      "description": ""
+    },
+    {
+      "id": "bp_zoeken",
+      "type": "BusinessProcess",
+      "label": "Foto's zoeken op filters",
+      "layer": "business",
+      "levels": [
+        "conceptueel"
+      ],
+      "status": "ontwerp",
+      "trace": [],
+      "missing": [],
+      "auto": false,
+      "facts": [],
+      "factCount": 0,
+      "description": ""
+    },
+    {
+      "id": "bs_fotos",
+      "type": "BusinessService",
+      "label": "Foto-inzage vanuit Claude",
+      "layer": "business",
+      "levels": [
+        "conceptueel"
+      ],
+      "status": "ontwerp",
+      "trace": [],
+      "missing": [],
+      "auto": false,
+      "facts": [],
+      "factCount": 0,
+      "description": ""
+    },
+    {
+      "id": "cn_geenpixels",
+      "type": "Constraint",
+      "label": "Alleen metadata, geen pixels (API-beperking)",
+      "layer": "motivation",
+      "levels": [
+        "conceptueel"
+      ],
+      "status": "ontwerp",
+      "trace": [],
+      "missing": [],
+      "auto": false,
+      "facts": [],
+      "factCount": 0,
+      "description": ""
+    },
+    {
+      "id": "cn_readonly",
+      "type": "Constraint",
+      "label": "Read-only: wijzigt nooit foto's of albums",
+      "layer": "motivation",
+      "levels": [
+        "conceptueel"
+      ],
+      "status": "ontwerp",
+      "trace": [],
+      "missing": [],
+      "auto": false,
+      "facts": [],
+      "factCount": 0,
+      "description": ""
+    },
+    {
+      "id": "cn_scope",
+      "type": "Constraint",
+      "label": "Scope: CLAUDE.md zegt photoslibrary.readonly, code vraagt photoslibrary",
+      "layer": "motivation",
+      "levels": [
+        "conceptueel"
+      ],
+      "status": "ontwerp",
+      "trace": [],
+      "missing": [],
+      "auto": false,
+      "facts": [],
+      "factCount": 0,
+      "description": "Afwijking tussen documentatie en code (auth.py SCOPES). De read-only-eis wordt nu alleen door de toolset afgedwongen, niet door de OAuth-scope."
+    },
+    {
+      "id": "dr_fotos",
+      "type": "Driver",
+      "label": "Foto's en albums bevraagbaar vanuit Claude",
+      "layer": "motivation",
+      "levels": [
+        "conceptueel"
+      ],
+      "status": "ontwerp",
+      "trace": [],
+      "missing": [],
+      "auto": false,
+      "facts": [],
+      "factCount": 0,
+      "description": ""
+    },
+    {
+      "id": "go_metadata",
+      "type": "Goal",
+      "label": "Albums en foto-metadata opzoeken op datum, categorie en mediatype",
+      "layer": "motivation",
+      "levels": [
+        "conceptueel"
+      ],
+      "status": "ontwerp",
+      "trace": [],
+      "missing": [],
+      "auto": false,
+      "facts": [],
+      "factCount": 0,
+      "description": ""
+    },
+    {
+      "id": "rq_oauth",
+      "type": "Requirement",
+      "label": "OAuth2-login op eigen Google Cloud-project (Claude-Gmail)",
+      "layer": "motivation",
+      "levels": [
+        "conceptueel"
+      ],
+      "status": "ontwerp",
+      "trace": [],
+      "missing": [],
+      "auto": false,
+      "facts": [],
+      "factCount": 0,
+      "description": ""
+    },
+    {
+      "id": "rq_stdio",
+      "type": "Requirement",
+      "label": "Integratie met Claude Code via stdio-transport",
+      "layer": "motivation",
+      "levels": [
+        "conceptueel"
+      ],
+      "status": "ontwerp",
+      "trace": [],
+      "missing": [],
+      "auto": false,
+      "facts": [],
+      "factCount": 0,
+      "description": ""
+    }
+  ]
+}
